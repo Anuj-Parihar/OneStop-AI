@@ -1,10 +1,15 @@
 import React from 'react'
+import Navbar from '../components/Navbar'
+import Hero from '../components/Hero'
+import AiTools from '../components/AiTools'
 
 const Home = () => {
   return (
-    <div>
-        <h1>Home</h1>
-    </div>
+    <>
+        <Navbar/>
+        <Hero/>
+        <AiTools/>
+    </>
   )
 }
 
