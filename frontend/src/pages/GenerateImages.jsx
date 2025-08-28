@@ -2,7 +2,7 @@ import React from 'react'
 
 const GenerateImages = () => {
   return (
-    <div>GenerateImages</div>
+    <div>GenerateImages </div>
   )
 }
 
