@@ -19,7 +19,7 @@ const WriteArticle = () => {
     <div className="p-6 h-full overflow-y-scroll gap-4 flex items-start flex-wrap text-slate-700">
       {/* left-col  */}
       <form
-        onSubmit={onSubmitHandler()}
+        onSubmit={onSubmitHandler}
         className="w-full max-w-lg p-4 bg-white rounded-1g border border-gray-200"
       >
         <div className="flex items-center gap-3">
@@ -30,6 +30,7 @@ const WriteArticle = () => {
         <input
           onChange={(e) => setInput(e.target.value)}
           type="text"
+          value={input}
           className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300"
           placeholder="The future of artificial intelligence is..."
           required

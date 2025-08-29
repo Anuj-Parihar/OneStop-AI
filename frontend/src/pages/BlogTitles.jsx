@@ -5,7 +5,7 @@ const BlogTitles = () => {
 
   const blogCategories = [ 'General','Technology','Business', 'Health','Lifestyle', 'Education','Travel', 'Food'];
   
-    const [selectedCategory, setSelectedcategory] = useState('General');
+    const [selectedCategory, setSelectedCategory] = useState('General');
     const [input, setInput] = useState("");
   
     const onSubmitHandler = async (e) => {
@@ -16,7 +16,7 @@ const BlogTitles = () => {
      <div className="p-6 h-full overflow-y-scroll gap-4 flex items-start flex-wrap text-slate-700">
       {/* left-col  */}
       <form
-        onSubmit={onSubmitHandler()}
+        onSubmit={onSubmitHandler}
         className="w-full max-w-lg p-4 bg-white rounded-1g border border-gray-200"
       >
         <div className="flex items-center gap-3">
@@ -27,6 +27,7 @@ const BlogTitles = () => {
         <input
           onChange={(e) => setInput(e.target.value)}
           type="text"
+          value={input}
           className="w-full p-2 px-3 mt-2 outline-none text-sm rounded-md border border-gray-300"
           placeholder="The future of artificial intelligence is..."
           required
@@ -36,7 +37,7 @@ const BlogTitles = () => {
         <div className=" mt-3 flex gap-3 flex-wrap sm:max-w-9/11">
           {blogCategories.map((item) => (
             <span
-              onClick={() => setSelectedcategory(item)}
+              onClick={() => setSelectedCategory(item)}
               className={`text-xs px-4 py-1 border rounded-full cursor-pointer ${
                 selectedCategory === item
                   ? "bg-purple-50 text-purple-700"
