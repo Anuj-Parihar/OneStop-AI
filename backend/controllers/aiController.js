@@ -2,7 +2,8 @@ import OpenAI from "openai";
 import sql from "../configs/db.js";
 import { clerkClient } from "@clerk/express";
 import axios from "axios";
-import { v2 as cloudinary } from "cloudinary";
+// import { v2 as cloudinary } from "cloudinary";
+import {v2 as cloudinary} from 'cloudinary';
 
 
 const AI = new OpenAI({
@@ -109,6 +110,7 @@ export const generateImage = async (req, res) => {
     const { userId } = req.auth();
     const { prompt, publish } = req.body;
     const plan = req.plan;
+
     if (plan !== "premium") {
       return res.json({
         success: false,
@@ -116,7 +118,7 @@ export const generateImage = async (req, res) => {
       });
     }
     
-    const formData = new FormData()
+    const formData = new FormData();
     formData.append('prompt', prompt)
     const {data} = await axios.post("https://clipdrop-api.co/text-to-image/v1", formData, {
       headers: {'x-api-key': process.env.CLIPDROP_API_KEY,},
@@ -133,7 +135,7 @@ export const generateImage = async (req, res) => {
 
     res.json({
       success: true,
-      secure_url
+      content: secure_url
     });
 
   } catch (error) {
