@@ -82,7 +82,7 @@ export const generateBlogTitle = async (req, res) => {
         },
       ],
       temperature: 0.7,
-      max_tokens: 100,
+      max_tokens: 300,
     });
     const content = response.choices[0].message.content;
     await sql `INSERT INTO creations (user_id, prompt, content, type) VALUES (${userId}, ${prompt}, ${content},'blog-title')`;
