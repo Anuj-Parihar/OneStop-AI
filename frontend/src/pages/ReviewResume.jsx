@@ -1,13 +1,14 @@
-import { FileText, Sparkles } from 'lucide-react';
-import React, { useState } from 'react'
+
+
+
+import { FileText, Sparkles, Clipboard } from 'lucide-react';
+import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
 import Markdown from 'react-markdown';
 
-
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
-
 
 const ReviewResume = () => {
   const [input, setInput] = useState("");
@@ -16,25 +17,33 @@ const ReviewResume = () => {
         
   const {getToken} = useAuth();  
   const onSubmitHandler = async (e) => {
-          e.preventDefault();
-          try {
-          setLoading(true);
-          const formData = new FormData();
-          formData.append('resume', input);
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append('resume', input);
 
-          const {data} = await axios.post('/api/ai/resume-review', formData ,{headers: {Authorization: `Bearer ${await getToken()}`}
-          }) 
-            if(data.success){
-              setContent(data.content);
-            }else{
-              toast.error(data.message)
-            }
+      const {data} = await axios.post(
+        '/api/ai/resume-review',
+        formData,
+        {headers: {Authorization: `Bearer ${await getToken()}`}}
+      ); 
+      if(data.success){
+        setContent(data.content);
+      }else{
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+    setLoading(false);
+  };
 
-        } catch (error) {
-          toast.error(error.message);
-        }
-        setLoading(false);
-        };
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(content);
+    toast.success("Copied to clipboard!");
+  };
+
   return (
     <div className="p-6 h-full overflow-y-scroll gap-4 flex items-start flex-wrap text-slate-700">
       {/* left-col  */}
@@ -60,19 +69,26 @@ const ReviewResume = () => {
           Review Resume  
         </button>
       </form>
+
       {/* right-col  */}
       <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 max-h-[600px]">
-        <div className="flex  items-center gap-3">
-          <FileText className="w-5 h-5 text-[#00DA83]" />
-          <h1 className="text-xl font-semibold"> Analysis Results</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex  items-center gap-3">
+            <FileText className="w-5 h-5 text-[#00DA83]" />
+            <h1 className="text-xl font-semibold"> Analysis Results</h1>
+          </div>
+          {content && (
+            <Clipboard
+              onClick={copyToClipboard}
+              className="w-5 h-5 text-gray-500 cursor-pointer hover:text-green-600"
+            />
+          )}
         </div>
+
         {
           !content ? (
               <div className="flex-1 flex justify-center items-center">
-                <div
-                  className="text-sm flex flex-col items-center gap-5
-                text-gray-400"
-                >
+                <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
                   <FileText className="w-9 h-9" /> 
                   <p>Upload a resume and click "Review Resume" to get started</p>
                 </div>
@@ -87,7 +103,7 @@ const ReviewResume = () => {
         }
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ReviewResume
+export default ReviewResume;

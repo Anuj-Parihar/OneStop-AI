@@ -1,11 +1,12 @@
-import { Edit, Sparkles } from "lucide-react";
+
+
+import { Edit, Sparkles, Clipboard } from "lucide-react";
 import React, { useState } from "react";
 import axios from 'axios';
 import { useAuth } from '@clerk/clerk-react';
 import toast from 'react-hot-toast';
-import Markdown from 'react-markdown'
+import Markdown from 'react-markdown';
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
-
 
 const WriteArticle = () => {
   const articleLength = [
@@ -26,17 +27,25 @@ const WriteArticle = () => {
     try {
       setLoading(true);
       const prompt = `Write an article about ${input} in ${selectedLength.text}`;
-      const {data} = await axios.post('/api/ai/generate-article', {prompt,length:selectedLength.length},{headers: {Authorization: `Bearer ${await getToken()}`}
-    }) 
+      const {data} = await axios.post(
+        '/api/ai/generate-article',
+        {prompt,length:selectedLength.length},
+        {headers: {Authorization: `Bearer ${await getToken()}`}}
+      ); 
       if(data.success){
         setContent(data.content);
       }else{
-        toast.error(data.message)
+        toast.error(data.message);
       }
     } catch (error) {
-      toast.error(error.message)
+      toast.error(error.message);
     }
     setLoading(false);
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(content);
+    toast.success("Copied to clipboard!");
   };
 
   return (
@@ -86,31 +95,36 @@ const WriteArticle = () => {
           Generate Article
         </button>
       </form>
+
       {/* right-col  */}
       <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96 max-h-[600px]">
-        <div className="flex items-center gap-3">
-          <Edit className="w-5 h-5 text-[#4A7AFF]" />
-          <h1 className="text-xl font-semibold">Generated article</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Edit className="w-5 h-5 text-[#4A7AFF]" />
+            <h1 className="text-xl font-semibold">Generated article</h1>
+          </div>
+          {content && (
+            <Clipboard
+              onClick={copyToClipboard}
+              className="w-5 h-5 text-gray-500 cursor-pointer hover:text-blue-600"
+            />
+          )}
         </div>
 
-          { !content ? (
-            <div className="flex-1 flex justify-center items-center">
-              <div
-                className="text-sm flex flex-col items-center gap-5
-              text-gray-400"
-              >
-                <Edit className="w-9 h-9" /> 
-                <p>Enter a topic and click "Generate article " to get started</p>
-              </div>
+        { !content ? (
+          <div className="flex-1 flex justify-center items-center">
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
+              <Edit className="w-9 h-9" /> 
+              <p>Enter a topic and click "Generate article " to get started</p>
             </div>
-          ) : (
-             <div className=" mt-3 h-full overflow-y-scroll text-sm text-slate-600">
-              <div className="reset-tw">
-                <Markdown>{content}</Markdown>
-                </div>
-             </div>
-          )}
-
+          </div>
+        ) : (
+          <div className=" mt-3 h-full overflow-y-scroll text-sm text-slate-600">
+            <div className="reset-tw">
+              <Markdown>{content}</Markdown>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

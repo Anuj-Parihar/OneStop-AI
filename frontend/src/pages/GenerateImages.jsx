@@ -1,47 +1,57 @@
-import { Image, Sparkles } from 'lucide-react';
+
+
+import { Image, Sparkles, Expand } from 'lucide-react';
 import React, { useState } from 'react'
 import toast from 'react-hot-toast';
 import { useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
-
 
 axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const GenerateImages = () => {
   const imageStyle = ['Realistic','Ghibli style', 'Anime style ','Cartoon style', 'Fantasy art', '3D style', 'Portrait style'];
     
-      const [selectedStyle, setSelectedStyle] = useState('Realistic');
-      const [input, setInput] = useState("");
-      const [publish, setPublish] = useState(false);
-
-      const [loading, setLoading] = useState(false);
-      const [content, setContent]  = useState('');
+  const [selectedStyle, setSelectedStyle] = useState('Realistic');
+  const [input, setInput] = useState("");
+  const [publish, setPublish] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [content, setContent]  = useState('');
   
-      const {getToken} = useAuth();
+  const {getToken} = useAuth();
 
-      const onSubmitHandler = async (e) => {
-        e.preventDefault();
-        try {
-          setLoading(true);
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const prompt = `Generate an image of ${input} in the style ${selectedStyle}`;
+      const {data} = await axios.post(
+        '/api/ai/generate-image',
+        {prompt, publish},
+        {headers: {Authorization: `Bearer ${await getToken()}`}}
+      ) 
+      if(data.success){
+        setContent(data.content);
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+    setLoading(false);
+  };
 
-          const prompt = `Generate an image of ${input} in the style ${selectedStyle}`;
+  // download handler
+  const downloadImage = () => {
+    const link = document.createElement('a');
+    link.href = content;
+    link.target = '_blank';  // open in new tab
+    link.rel = 'noopener noreferrer'; // security best practice
+    link.click();
+  };
 
-          const {data} = await axios.post('/api/ai/generate-image', {prompt, publish},{headers: {Authorization: `Bearer ${await getToken()}`}
-          }) 
-            if(data.success){
-              setContent(data.content);
-            }else{
-              toast.error(data.message)
-            }
-
-        } catch (error) {
-          toast.error(error.message);
-        }
-        setLoading(false);
-      };
   return (
     <div className="p-6 h-full overflow-y-scroll gap-4 flex items-start flex-wrap text-slate-700">
-      {/* left-col  */}
+      {/* left-col */}
       <form
         onSubmit={onSubmitHandler}
         className="w-full max-w-lg p-4 bg-white rounded-1g border border-gray-200"
@@ -77,23 +87,22 @@ const GenerateImages = () => {
           ))}
         </div>
 
-          <div className='my-6 flex items-center gap-2'>
-              <label className="relative cursor-pointer">
-                <input type="checkbox" onChange={(e)=> setPublish(e.target.checked)} checked={publish} className='sr-only peer' />
+        <div className='my-6 flex items-center gap-2'>
+          <label className="relative cursor-pointer">
+            <input type="checkbox" onChange={(e)=> setPublish(e.target.checked)} checked={publish} className='sr-only peer' />
+            <div className='w-9 h-5 bg-slate-300 rounded-full peer-checked:bg-green-500 transition'></div>
+            <span className='absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition peer-checked:translate-x-4'></span>
+          </label>
+          <p className='text-sm'> Make this image Public</p>
+        </div>
 
-                <div className='w-9 h-5 bg-slate-300 rounded-full peer-checked:bg-green-500 transition'></div>
-                <span className='absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition peer-checked:translate-x-4'></span>
-              </label>
-              <p className='text-sm'> Make this image Public</p>
-          </div>
         <button  disabled={loading} className="mt-6 w-full  text-white px-4 py-2 rounded-lg bg-gradient-to-r from-[#04AD25] to-[#04FF50] flex items-center justify-center gap-2 text-sm cursor-pointer">
-          {
-            loading ? <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span> : <Image className="w-5" />
-          }
+          {loading ? <span className="w-4 h-4 my-1 rounded-full border-2 border-t-transparent animate-spin"></span> : <Image className="w-5" />}
           Generate Image
         </button>
       </form>
-      {/* right-col  */}
+
+      {/* right-col */}
       <div className="w-full max-w-lg p-4 bg-white rounded-lg flex flex-col border border-gray-200 min-h-96">
         <div className="flex items-center gap-3">
           <Image className="w-5 h-5 text-[#00AD25]" />
@@ -101,17 +110,20 @@ const GenerateImages = () => {
         </div>
         { !content  ? (
           <div className="flex-1 flex justify-center items-center">
-            <div
-              className="text-sm flex flex-col items-center gap-5
-            text-gray-400"
-            >
+            <div className="text-sm flex flex-col items-center gap-5 text-gray-400">
               <Image className="w-9 h-9" /> 
               <p>Enter a topic and click "Generate image" to get started</p>
             </div>
           </div>
         ) : (
-          <div>
-              <img src={content} alt="iamge" className='w-full h-full'/>
+          <div className="flex flex-col gap-3">
+            <img src={content} alt="image" className='w-full h-full'/>
+            <button
+              onClick={downloadImage}
+              className="mt-2 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-[#04AD25] to-[#04FF50] text-white text-sm"
+            >
+              <Expand className="w-4 h-4" /> Expand the Image
+            </button>
           </div>
         )}
       </div>
@@ -119,4 +131,4 @@ const GenerateImages = () => {
   )
 }
 
-export default GenerateImages
+export default GenerateImages;
