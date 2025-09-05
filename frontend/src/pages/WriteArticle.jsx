@@ -1,5 +1,3 @@
-
-
 import { Edit, Sparkles, Clipboard } from "lucide-react";
 import React, { useState } from "react";
 import axios from 'axios';
