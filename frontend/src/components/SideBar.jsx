@@ -65,5 +65,4 @@ const SideBar = ({sidebar, setSidebar}) => {
     </div>
   )
 }
-
 export default SideBar;
